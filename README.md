@@ -141,6 +141,7 @@ POST /v2/prescriptions/process-urls
   ]
 }
 ```
+**OBS** envio da receita a depender do formato em que a Conexa conseguir nos enviar
 ---
 
 ## Fluxograma da Integração
