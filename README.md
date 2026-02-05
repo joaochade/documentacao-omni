@@ -4,7 +4,7 @@ config:
   look: neo
   layout: dagre
 ---
-flowchart LR
+flowchart TB
  subgraph Legend[" "]
         L1["Ação do Cliente B2B"]
         L2["Integração Conexa → Omni"]
