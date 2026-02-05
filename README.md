@@ -1,9 +1,13 @@
 # Documentação de Integração - Conexa x Omni
 
+Esta documentação descreve a integração técnica entre a Conexa e a Omni para disponibilização do benefício de medicamentos no app da Conexa por meio de WebView. O fluxo contempla o cadastro de usuários e dependentes, a criação e gestão de carteiras de benefício, a geração de links temporários com autenticação transparente e o envio de receitas médicas emitidas em teleconsultas. O objetivo é permitir que colaboradores elegíveis acessem o ambiente Omni diretamente pelo app da Conexa e realizem toda a jornada de consulta, prescrição e compra de medicamentos com cobertura, de forma integrada e contínua. O documento serve como referência técnica para implementação, testes e operação da integração.
+
 ## 01. Cadastro de Usuários
 
 ### Criação de Usuários
 **Endpoint:** `POST /v2/users`
+
+Cria um usuário na Omni vinculado a uma empresa, com suporte a dependentes via holderUserId.
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |-----------|------|-------------|-----------|
@@ -50,6 +54,8 @@ POST /v2/users
 ### Criação de Carteiras
 **Endpoint:** `POST /v2/wallets`
 
+Cria uma carteira para um usuário com plano e vigência definidos.
+
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |-----------|------|-------------|-----------|
 | `userId` | string | Sim | ID do usuário |
@@ -81,6 +87,8 @@ POST /v2/wallets
 ### Criação do Link Temporário
 **Endpoint:** `POST /v2/temporary-links`
 
+Gera um link temporário autenticado para acesso ao WebView da Omni.
+
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |-----------|------|-------------|-----------|
 | `userId` | string | Sim | ID do usuário |
@@ -105,6 +113,8 @@ POST /v2/temporary-links
 
 ### Processar Receitas por URL
 **Endpoint:** `POST /v2/prescriptions/process-urls`
+
+Envia receitas médicas para a Omni via URL, vinculadas ao usuário e à carteira.
 
 | Parâmetro | Tipo | Obrigatório | Descrição |
 |-----------|------|-------------|-----------|
@@ -141,7 +151,6 @@ POST /v2/prescriptions/process-urls
   ]
 }
 ```
-**OBS** envio da receita a depender do formato em que a Conexa conseguir nos enviar
 ---
 
 ## Fluxograma da Integração
@@ -159,20 +168,17 @@ flowchart TB
         L3["Ação do Usuário Final"]
         L4["Fim do Fluxo"]
   end
-    A["Cliente B2B envia/atualiza base de colaboradores na Conexa"] --> B["Conexa identifica colaboradores com benefício Omni ativo"]
-    B --> C{"Usuário já existe na Omni?"}
-    C -- Não --> D["Criar usuário na Omni<br>POST /v2/users"]
-    C -- Sim --> E["Consultar usuário na Omni por CPF<br>GET /v2/users/cpf/cpf"]
-    D --> F["Criar/atualizar carteira do usuário<br>POST /v2/wallets"]
-    E --> F
+    A["Cliente B2B envia base de colaboradores na Conexa"] --> B["Conexa identifica colaboradores com benefício Omni ativo"]
+    B --> D["Criar usuário na Omni<br>POST /v2/users"]
+    D --> F["Criar carteira do usuário<br>POST /v2/wallets"]
     F --> G["Usuário acessa app Conexa e clica em<br>Benefício de Medicamentos"]
     G --> H["Conexa gera link temporário autenticado na Omni<br>POST /v2/temporary-links"]
     H --> I["Conexa abre WebView Omni com link temporário"]
     I --> J{"Usuário realizou teleconsulta<br>e recebeu receita?"}
-    J -- Sim --> K["Conexa envia receita para Omni <br>POST /v2/prescriptions/process-urls"]
+    J -- Sim --> K["Conexa envia receita para Omni<br>POST /v2/prescriptions/process-urls"]
     J -- Não --> L["Fim: usuário pode navegar no ambiente Omni"]
     K --> M["Fim: receita disponível no ambiente Omni"]
-
+    
     style L1 fill:#f5f5f5,stroke:#999,stroke-width:2px
     style L2 fill:#e3f2fd,stroke:#42a5f5,stroke-width:2px
     style L3 fill:#e8f5e9,stroke:#66bb6a,stroke-width:2px
@@ -180,7 +186,6 @@ flowchart TB
     style A fill:#f5f5f5,stroke:#999,stroke-width:2px
     style B fill:#e3f2fd,stroke:#42a5f5,stroke-width:2px
     style D fill:#e3f2fd,stroke:#42a5f5,stroke-width:2px
-    style E fill:#e3f2fd,stroke:#42a5f5,stroke-width:2px
     style F fill:#e3f2fd,stroke:#42a5f5,stroke-width:2px
     style G fill:#e8f5e9,stroke:#66bb6a,stroke-width:2px
     style H fill:#e3f2fd,stroke:#42a5f5,stroke-width:2px
